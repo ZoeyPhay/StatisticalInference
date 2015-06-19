@@ -1,0 +1,70 @@
+---
+title: "Part2 Analyzing ToothGrowth"
+output: html_document
+---
+#### By Zoey Phay
+
+#### Overview
+For the second part, we're going to analyze the ToothGrowth data in the R datasets package.
+
+The dataset records Vitamin C effects on the tooth growth on guinea pigs at different dosage (0.5,1 and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).
+
+A data frame with 60 observations on 3 variables.
+
+len numeric Tooth length
+supp factor Supplement type (VC or OJ).
+dose numeric Dose in milligrams.
+
+#### Load the ToothGrowth data and perform some basic exploratory data analyses
+```{r,echo=TRUE}
+library(ggplot2)
+library(datasets)
+data(ToothGrowth)
+head(ToothGrowth)
+```
+```{r,echo=TRUE}
+str(ToothGrowth)
+```
+
+#### Provide a basic summary of the data.
+```{r,echo=TRUE}
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+table(ToothGrowth$supp, ToothGrowth$dose)
+summary(ToothGrowth)
+```
+```{r,echo=TRUE}
+mean(ToothGrowth$len) # mean
+```
+```{r,echo=TRUE}
+sd(ToothGrowth$len) # standard deviation
+```
+Graph it..
+```{r,echo=TRUE}
+ggplot(ToothGrowth, aes(x=factor(dose),y=len,fill=factor(dose))) + geom_boxplot(notch=F) + facet_grid(.~supp) +
+     scale_x_discrete("Dosage (Milligram)") +   
+     scale_y_continuous("Length of Teeth") +  
+     ggtitle("Effect of Dosage and Supplement Type on Tooth Growth")
+```
+
+#### Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose
+```{r,echo=TRUE}
+supp.t1 <- t.test(len~supp, paired=F, var.equal=T, data=ToothGrowth)
+supp.t2 <- t.test(len~supp, paired=F, var.equal=F, data=ToothGrowth)
+supp.result <- data.frame("p-value"=c(supp.t1$p.value, supp.t2$p.value),
+                          "Conf-Low"=c(supp.t1$conf[1],supp.t2$conf[1]),
+                          "Conf-High"=c(supp.t1$conf[2],supp.t2$conf[2]),
+                          row.names=c("Equal Var","Unequal Var"))
+supp.result
+```
+
+#### State conclusions and the assumptions needed. 
+
+Assumptions:
+Guinea pigs were randomly chosen (same population variance); Samples are independent (sample data not paired)
+
+Conclusion:
+1. Orange juice results more tooth growth than ascorbic acid, at 0.5 and 1 dosages.
+2. Tooth growth is not significantly different for the different delivery method at 2 mg.
+3. Dosage plays the key role in tooth growth 
+
+
