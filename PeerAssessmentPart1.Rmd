@@ -1,0 +1,67 @@
+---
+output: html_document
+---
+
+### Part1 Exponential Distribution vs. Central Limit Theorem
+####By Zoey Phay
+
+#### Overview
+This project investigates the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution is simulated with rexp(n, lambda) where lambda is the rate parameter, theoretical mean of exponential distribution is 1/lambda and theoretical standard deviation is also 1/lambda. This project performs a thousand simulations to get the distribution of averages of 40 exponentials, where the lambda is set to 0.2 for all of the simulations. The simulated samples are used to illustrate and explain the properties of the distribution of the mean of 40 exponentials in the following ways:
+
+1. Show the sample mean and compare it to the theoretical mean of the distribution.
+2. Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
+3. Show that the distribution is approximately normal.
+
+#### Simulations
+Library required
+```{r,echo=TRUE}
+library(ggplot2)
+```
+```{r,echo=TRUE}
+lambda = 0.2 # Set lambda = 0.2 for all of the simulations
+n = 40 # Investigate 40 exponentials...
+nsims = 1:1000 # ...for 1000 simulations
+set.seed(876) # setting seed for reproducing the data
+means <- data.frame(x = sapply(nsims, function(x) {mean(rexp(n, lambda))})) # gathering means..
+head(means)
+```
+Let's graph it..
+```{r,echo=TRUE}
+ggplot(data = means, aes(x = x)) + geom_histogram(fill = "blue",binwidth=0.1, aes(y=..density..)) + labs(x="Means") + labs(y="Density")
+```
+
+#### Question 1: Sample Mean vs Theoretical Mean
+Expected Mean of Exponential Distribution of lamda:
+```{r,echo=TRUE}
+simmu = 1 / lambda
+print(simmu)
+```
+Sample Mean of Exponential Distributions (nsims = 1:1000;n = 40) :
+```{r,echo=TRUE}
+simmean <- mean(means$x)
+print(simmean)
+```
+
+#### Question 2: Sample Variance vs Theoretical Variance
+Theoretical
+```{r,echo=TRUE}
+simexpsd <- (1/lambda)/sqrt(n) #standard deviation
+print(simexpsd)
+simexpvar <- simexpsd^2 #variance
+print(simexpvar)
+```
+Sample
+```{r,echo=TRUE}
+simsd <- sd(means$x) #standard deviation
+print(simsd)
+simvar <- var(means$x) #variance
+print(simvar)
+```
+
+Results for Question 1 and for Question 2 are very close.
+
+#### Question 3: Showing the distribution is approximately normal
+From the graph, the distribution of the simulated means (blue) approaches the normal distribution (red) and that their means (blue and red vertical lines) approach each other too
+```{r,echo=TRUE}
+ggplot(data = means, aes(x = x)) + geom_histogram(binwidth=0.1, aes(y=..density..), fill = I('#8A8A8A'),) + stat_function(fun = dnorm, arg = list(mean = simmu , sd = simsd), colour = "red", size=2) + geom_vline(xintercept = simmu, size=1, colour="red") + geom_density(colour="blue", size=2) + geom_vline(xintercept = simmean, size=1, colour="blue") + labs(x="Means") +labs(y="Density")
+```
